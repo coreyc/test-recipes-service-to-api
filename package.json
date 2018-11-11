@@ -1,0 +1,22 @@
+{
+  "name": "test-recipes-service-to-api",
+  "version": "1.0.0",
+  "description": "Example unit tests for calling an external REST API/endpoint from a Node service",
+  "scripts": {
+    "test": "mocha ./test/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coreyc/test-recipes-service-to-api.git"
+  },
+  "author": "Corey Cleary",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^6.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "sinon": "^6.1.5"
+  }
+}
