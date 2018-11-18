@@ -1,7 +1,6 @@
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
-const sinon = require('sinon')
-const request = require('superagent')
+const nock = require('nock')
 
 const { booksFixture } = require('./books.fixture')
 
@@ -11,24 +10,15 @@ const expect = chai.expect
 chai.use(chaiAsPromised)
 
 describe('Book Service', () => {
-  let getRequest
-  
-  before(() => {
-    getRequest = sinon.stub(request, 'get')
-  })
-
-  after(() => {
-    getRequest.restore()
-  })
-
   describe('fetchBooks', () => {
     it('should return list of books based on search string', async () => {
-      getRequest.returns({
-        query: sinon.stub().returns(booksFixture)
-      })
+      nock('http://openlibrary.org')
+        .get('/search.json')
+        .query(true)
+        .reply(200, booksFixture)
 
-      const searchResults = await fetchBooks('lord of the rings')
-      expect(searchResults).to.deep.equal({
+      const {body} = await fetchBooks('lord of the rings')
+      expect(body).to.deep.equal({
         docs: [
           {title_suggest: 'The Lord of the Rings', cover_edition_key: 'OL9701406M'},
           {title_suggest: 'Lord of the Rings', cover_edition_key: 'OL1532643M'},
@@ -37,10 +27,31 @@ describe('Book Service', () => {
       })
     })
 
-    it('should return an empty list if the service is down', async () => {
-      getRequest.returns({
-        query: sinon.stub().returns(null)
-      })
+    it('should throw an error if the service is down', async () => {
+      nock('http://openlibrary.org')
+        .get('/search.json')
+        .query(true)
+        .reply(500)
+
+      await expect(fetchBooks('lord of the rings')).to.be.rejected
+    })
+
+    it('should return null if query returns a 404', async () => {
+      nock('http://openlibrary.org')
+        .get('/search.json')
+        .query(true)
+        .reply(404)
+
+      await expect(fetchBooks('lord of the rings')).to.be.rejectedWith(null)
+    })
+
+    it('should throw an error if there is a problem with the request (i.e. - 401 Unauthorized, 400 Bad Request)', async () => {
+      nock('http://openlibrary.org')
+        .get('/search.json')
+        .query(true)
+        .reply(400)
+
+      await expect(fetchBooks('lord of the rings')).to.be.rejected
     })
   })
 
