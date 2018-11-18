@@ -18,7 +18,6 @@ describe('Book Service', () => {
   })
 
   after(() => {
-    process.env.UNHAPPY = false
     getRequest.restore()
   })
 
@@ -35,6 +34,12 @@ describe('Book Service', () => {
           {title_suggest: 'Lord of the Rings', cover_edition_key: 'OL1532643M'},
           {title_suggest: 'The Fellowship of the Ring', cover_edition_key: 'OL18299598M'}
         ]
+      })
+    })
+
+    it('should return an empty list if the service is down', async () => {
+      getRequest.returns({
+        query: sinon.stub().returns(null)
       })
     })
   })
