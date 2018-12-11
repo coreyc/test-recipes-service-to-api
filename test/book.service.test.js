@@ -33,7 +33,7 @@ describe('Book Service', () => {
         .query(true)
         .reply(500)
 
-      await expect(fetchBooks('lord of the rings')).to.be.rejected
+      await expect(fetchBooks('lord of the rings')).to.be.rejectedWith('Open Library service down')
     })
 
     it('should return null if query returns a 404', async () => {
@@ -42,7 +42,8 @@ describe('Book Service', () => {
         .query(true)
         .reply(404)
 
-      await expect(fetchBooks('lord of the rings')).to.be.rejectedWith(null)
+      const response = await fetchBooks('aksdfhkahsdfkhsadkfjhskadjhf')
+      expect(response).to.be.null;
     })
 
     it('should throw an error if there is a problem with the request (i.e. - 401 Unauthorized)', async () => {
@@ -51,7 +52,7 @@ describe('Book Service', () => {
         .query(true)
         .reply(401)
 
-      await expect(fetchBooks('lord of the rings')).to.be.rejected
+      expect(fetchBooks('lord of the rings')).to.be.rejectedWith('Problem with request')
     })
 
     it('should throw an error if there is a problem with the request (i.e. - 400 Bad Request)', async () => {
@@ -60,7 +61,7 @@ describe('Book Service', () => {
         .query(true)
         .reply(400)
 
-      await expect(fetchBooks('lord of the rings')).to.be.rejected
+      await expect(fetchBooks('lord of the rings')).to.be.rejectedWith('Problem with request')
     })
   })
 
